@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag and Drop to Generate HTML</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .drag-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .drag-item {
+            width: 100px;
+            height: 100px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            text-align: center;
+            line-height: 100px;
+            cursor: move;
+        }
+        .drop-target {
+            width: 100%;
+            height: 300px;
+            border: 2px dashed #aaa;
+            text-align: center;
+            line-height: 300px;
+            margin-top: 20px;
+        }
+        .generated-html {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap; /* 保留空格和换行 */
+        }
+    </style>
+</head>
+<body>
+    <h2>Drag and Drop to Generate HTML</h2>
+
+    <div class="drag-container">
+        <div class="drag-item" draggable="true" id="item1">Item 1</div>
+        <div class="drag-item" draggable="true" id="item2">Item 2</div>
+        <div class="drag-item" draggable="true" id="item3">Item 3</div>
+    </div>
+
+    <div class="drop-target" id="dropTarget" droppable="true">
+        Drop Here
+    </div>
+
+    <div class="generated-html" id="generatedHtml">
+        Generated HTML will appear here
+    </div>
+
+    <script>
+        const dragItems = document.querySelectorAll('.drag-item');
+        const dropTarget = document.getElementById('dropTarget');
+        const generatedHtml = document.getElementById('generatedHtml');
+
+        // 添加拖拽事件处理程序
+        dragItems.forEach(item => {
+            item.addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text/plain', event.target.id);
+                event.target.style.opacity = '0.5';
+            });
+
+            item.addEventListener('dragend', (event) => {
+                event.target.style.opacity = '1';
+                updateGeneratedHtml();
+            });
+        });
+
+        dropTarget.addEventListener('dragover', (event) => {
+            event.preventDefault(); // 阻止默认行为以允许放置
+        });
+
+        dropTarget.addEventListener('drop', (event) => {
+            event.preventDefault();
+            const data = event.dataTransfer.getData('text/plain');
+            const draggedElement = document.getElementById(data);
+            dropTarget.appendChild(draggedElement);
+            updateGeneratedHtml();
+        });
+
+        // 更新生成的 HTML
+        function updateGeneratedHtml() {
+            const dragContainer = document.querySelector('.drag-container');
+            const dropTargetClone = dropTarget.cloneNode(true);
+            dropTargetClone.removeChild(dropTargetClone.querySelector('.drag-item'));
+            const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generated HTML</title>
+    <style>
+        /* CSS 样式可以根据需要自行修改 */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .drag-item {
+            width: 100px;
+            height: 100px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            text-align: center;
+            line-height: 100px;
+        }
+        .drop-target {
+            width: 100%;
+            height: 300px;
+            border: 2px dashed #aaa;
+            text-align: center;
+            line-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Generated HTML</h2>
+
+    <div class="drag-container">
+        ${dragContainer.innerHTML}
+    </div>
+
+    ${dropTargetClone.outerHTML}
+</body>
+</html>
+            `;
+            generatedHtml.textContent = html;
+        }
+    </script>
+</body>
+</html>
